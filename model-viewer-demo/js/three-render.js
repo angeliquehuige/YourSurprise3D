@@ -30,10 +30,16 @@ scene.remove( cube )
 import {GLTFLoader} from '../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
 const loader = new GLTFLoader
 
-
+let meshes = [];
 
 loader.load( '../assets/67ekln6jmvyc.gltf', function ( gltf ) {
     mug = gltf.scene
+    gltf.scene.traverse( function ( child ) {
+        if ( child.isMesh ) {
+            console.log("MESH FOUND")
+            meshes.push(child);
+        }
+    } );
     // Rotate model 270 degrees
     mug.rotation.x = (Math.PI / 2) * 3 
     mug.position.y = -30
@@ -45,6 +51,28 @@ loader.load( '../assets/67ekln6jmvyc.gltf', function ( gltf ) {
 	console.error( error );
 
 } );
+
+console.log(meshes)
+let decalImage = new THREE.TextureLoader().load('assets/testImage.png');
+let decalMaterial = new THREE.MeshPhongMaterial({
+    map: decalImage,
+    transparent: true,
+    depthTest: true,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -4,
+    wireframe: false
+});
+import {DecalGeometry} from '../node_modules/three/examples/jsm/geometries/DecalGeometry.js';
+let decalGeometry = new DecalGeometry(
+    meshes[1],
+    new THREE.Euler(0, 20.5, 30),
+    new THREE.Euler(0, 0, 0),
+    new THREE.Euler(80, 80, 80)
+);
+decal = new THREE.Mesh(decalGeometry, decalMaterial);
+
+scene.add(decal);
 
 
 function animate() {
