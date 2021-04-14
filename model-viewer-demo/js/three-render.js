@@ -4,12 +4,13 @@ import {GLTFLoader} from '../node_modules/three/examples/jsm/loaders/GLTFLoader.
 const reader = new FileReader
 const loader = new GLTFLoader
 const scene = new THREE.Scene();
+scene.background = new THREE.Color( 0xf5f5f5 );
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
 const renderer = new THREE.WebGLRenderer();
 let meshes = [];
 let model;
-
+let cameraLight;
 init()
 function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -22,6 +23,7 @@ function init() {
     // Load Light
     addAmbientLight()
     addDirectionalLight(0,1,1)
+    cameraLight = addDirectionalLight(0, 20, 100, 0xffffff, 1.0, 100000)
 
     // Load Model
     loadModel("67ekln6jmvyc.gltf")
@@ -39,12 +41,14 @@ function loadControls(camera, renderer) {
 function addAmbientLight(color = 0xffffff) {
     var ambientLight = new THREE.AmbientLight(color);
     scene.add(ambientLight);
+    return ambientLight
 }
 
-function addDirectionalLight(x,y,z, color = 0xffffff){
-    var directionalLight = new THREE.DirectionalLight(color);
+function addDirectionalLight(x,y,z, color = 0xffffff, intensity = 1.0, range = 10){
+    var directionalLight = new THREE.DirectionalLight(color, intensity, range);
     directionalLight.position.set(x, y, z).normalize();
     scene.add(directionalLight);
+    return directionalLight
 }
 
 function loadModel(modelName) {
@@ -114,6 +118,7 @@ function eulerRotateConvert(degrees) {
 function animate() {
 	requestAnimationFrame( animate );
     // model.rotation.z += 0.001
+    cameraLight.position.copy(camera.position);
     // scene.rotation.y += 0.001
 	renderer.render( scene, camera );
 }
