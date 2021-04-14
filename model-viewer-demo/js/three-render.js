@@ -1,129 +1,126 @@
 import {DecalGeometry} from '../node_modules/three/examples/jsm/geometries/DecalGeometry.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import {GLTFLoader} from '../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
-
-let meshes = [];
-let mug;
-var mouse, raycaster, helper, decalMaterial;
-
-
+const reader = new FileReader
+const loader = new GLTFLoader
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
 const renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
-document.body.appendChild( renderer.domElement );
+let meshes = [];
+let model;
 
-// Load the Orbitcontroller
-const controls = new OrbitControls( camera, renderer.domElement );
-camera.position.set( 0, 20, 100 );
-controls.update();
-        
-// Load Light
-var ambientLight = new THREE.AmbientLight( 0xcccccc );
-scene.add( ambientLight );
-        
-var directionalLight = new THREE.DirectionalLight( 0xffffff );
-directionalLight.position.set( 0, 1, 1 ).normalize();
-scene.add( directionalLight );		
+init()
+function init() {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-let cube = new THREE.Mesh( geometry, material );
-cube.material.opacity = 0.5;
-scene.add( cube );
-scene.remove( cube )
+    document.getElementById("image").addEventListener("change", openImage)
+    // Load the Orbitcontroller
+    loadControls(camera, renderer)
 
-const loader = new GLTFLoader
+    // Load Light
+    addAmbientLight()
+    addDirectionalLight(0,1,1)
 
+    // Load Model
+    loadModel("67ekln6jmvyc.gltf")
 
-loader.load( 'assets/67ekln6jmvyc.gltf', function ( gltf ) {
-    mug = gltf.scene
-    mug.traverse( function ( child ) {
-        if ( child.isMesh ) {
-            console.log("MESH FOUND")
-            meshes.push(child);
-        }
+    // Start animation
+    animate();
+}
+
+function loadControls(camera, renderer) {
+    const controls = new OrbitControls( camera, renderer.domElement );
+    camera.position.set( 0, 20, 100 );
+    controls.update();
+}
+
+function addAmbientLight(color = 0xffffff) {
+    var ambientLight = new THREE.AmbientLight(color);
+    scene.add(ambientLight);
+}
+
+function addDirectionalLight(x,y,z, color = 0xffffff){
+    var directionalLight = new THREE.DirectionalLight(color);
+    directionalLight.position.set(x, y, z).normalize();
+    scene.add(directionalLight);
+}
+
+function loadModel(modelName) {
+    loader.load(`assets/${modelName}`, function ( gltf ) {
+        model = gltf.scene
+        model.traverse( function ( child ) {
+            if ( child.isMesh ) {
+                console.log("MESH FOUND for model: ", modelName)
+                meshes.push(child);
+            }
+        } );
+        // Rotate model
+        model.rotation.x = eulerRotateConvert(270)
+        model.rotation.z = eulerRotateConvert(180)
+        model.position.y = -30
+        scene.add( model );
+
+        putDecalOnMesh(meshes[1], generateDecalMaterial("testImage.png"))
+    }, undefined, function ( error ) {
+        console.error( error );
     } );
-    // Rotate model 270 degrees
-    mug.renderOrder = 0
-    mug.rotation.x = (Math.PI / 2) * 3 
-    mug.rotation.z = (Math.PI / 2) * 2
-    mug.position.y = -30
-    mug.scale.set(0.7,0.7,0.7) // scale here
-	scene.add( mug );
-    addDecalToMesh()
+}
 
-
-    mouse = new THREE.Vector2();
-    raycaster = new THREE.Raycaster();
-    helper = new THREE.Object3D();
-    decalMaterial = addDecalToMesh()
-    document.addEventListener( 'click', onClick );  
-
-}, undefined, function ( error ) {
-
-	console.error( error );
-
-} );
-
-
-function addDecalToMesh() {
-    console.log(meshes)
-    let decalImage = new THREE.TextureLoader().load('assets/from-website.png');
+function generateDecalMaterial(imageName) {
+    let decalImage = new THREE.TextureLoader().load(`assets/${imageName}`);
     let decalMaterial = new THREE.MeshPhongMaterial({
         map: decalImage,
         depthWrite: false, 
         polygonOffset: true, 
         polygonOffsetFactor: - 4, 
-        renderOrder: 10,
+    });
+    return decalMaterial
+}
+
+function generateDecalMaterialFromImage(image) {
+    let decalImage = new THREE.TextureLoader().load(reader.readAsDataURL(image));
+    let decalMaterial = new THREE.MeshPhongMaterial({
+        map: decalImage,
+        depthWrite: false,
+        polygonOffset: true,
+        polygonOffsetFactor: - 4,
     });
     return decalMaterial
 }
 
 
+function putDecalOnMesh(mesh, decalMaterial) {
+    var position = new THREE.Vector3( 0, 0, 0 );
 
-function onClick( event ) {
-    event.preventDefault();
+    // Get model sizes
+    var box = new THREE.Box3().setFromObject(model);
+    console.log(box.min, box.max, box.getSize());
+    // Scale decal to model size
+    var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
 
-    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-    
-    raycaster.setFromCamera( mouse, camera );
-
-    var mesh = meshes[1]
-    var intersects = raycaster.intersectObject( mesh );
-    
-    if ( intersects.length > 0 ) {
-    
-        var n = intersects[ 0 ].face.normal.clone();
-        n.transformDirection( mesh.matrixWorld );
-        n.add( intersects[ 0 ].point );
-    
-        var position = intersects[ 0 ].point;
-        position.x = 0
-        position.y = 5
-        position.z = 30
-
-        var box = new THREE.Box3().setFromObject( mug );
-        console.log( box.min, box.max, box.getSize() );
-        var sizeScale = 6
-        var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
-        
-        var decalGeometry = new DecalGeometry( mesh, position, new THREE.Euler(0,0,0), size );
-                    
-        var decal = new THREE.Mesh( decalGeometry, decalMaterial );
-        scene.add( decal );
-    
-    }
-    
+    // Generate decal and add to model (scene)
+    var decalGeometry = new DecalGeometry(mesh, position, new THREE.Euler(0,0,0), size);
+    var decal = new THREE.Mesh(decalGeometry, decalMaterial);
+    scene.add(decal);
 }
 
+function eulerRotateConvert(degrees) {
+    let multiply = degrees / 90
+    return (Math.PI / 2) * multiply 
+}
 
 function animate() {
 	requestAnimationFrame( animate );
-    // mug.rotation.z += 0.001
+    // model.rotation.z += 0.001
     // scene.rotation.y += 0.001
 	renderer.render( scene, camera );
 }
-animate();
+
+function openImage(event) {
+    console.log("Image")
+    console.log(event.target)
+    let imageDecal = generateDecalMaterialFromImage(event.target.files[0])
+    putDecalOnMesh(meshes[1], imageDecal)
+}
