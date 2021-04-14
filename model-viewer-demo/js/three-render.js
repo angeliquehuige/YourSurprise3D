@@ -2,12 +2,14 @@ import {DecalGeometry} from '../node_modules/three/examples/jsm/geometries/Decal
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import {GLTFLoader} from '../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
 
+
 let meshes = [];
 let mug;
 var mouse, raycaster, helper, decalMaterial;
 
 
 const scene = new THREE.Scene();
+scene.background = new THREE.Color( 0xf5f5f5 );
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
 const renderer = new THREE.WebGLRenderer();
@@ -22,10 +24,11 @@ controls.update();
 // Load Light
 var ambientLight = new THREE.AmbientLight( 0xcccccc );
 scene.add( ambientLight );
-        
-var directionalLight = new THREE.DirectionalLight( 0xffffff );
-directionalLight.position.set( 0, 1, 1 ).normalize();
-scene.add( directionalLight );		
+
+let light = new THREE.DirectionalLight(0xffffff, 1.0, 100000);
+light.position.set( 0, 20, 100);
+scene.add(light);
+
 
 const geometry = new THREE.BoxGeometry();
 const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
@@ -36,8 +39,7 @@ scene.remove( cube )
 
 const loader = new GLTFLoader
 
-
-loader.load( '../assets/67ekln6jmvyc.gltf', function ( gltf ) {
+loader.load( 'assets/67ekln6jmvyc.gltf', function ( gltf ) {
     mug = gltf.scene
     mug.traverse( function ( child ) {
         if ( child.isMesh ) {
@@ -67,7 +69,6 @@ loader.load( '../assets/67ekln6jmvyc.gltf', function ( gltf ) {
 
 } );
 
-
 function addDecalToMesh() {
     console.log(meshes)
     let decalImage = new THREE.TextureLoader().load('assets/testImage.png');
@@ -80,8 +81,6 @@ function addDecalToMesh() {
     });
     return decalMaterial
 }
-
-
 
 function onClick( event ) {
     event.preventDefault();
@@ -119,11 +118,11 @@ function onClick( event ) {
     
 }
 
-
 function animate() {
 	requestAnimationFrame( animate );
-    // mug.rotation.z += 0.001
-    // scene.rotation.y += 0.001
+    //mug.rotation.z += 0.001
+    light.position.copy(camera.position);
+    //scene.rotation.y += 0.001;
 	renderer.render( scene, camera );
 }
 animate();
