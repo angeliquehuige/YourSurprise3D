@@ -71,7 +71,7 @@ loader.load( 'assets/67ekln6jmvyc.gltf', function ( gltf ) {
 
 function addDecalToMesh() {
     console.log(meshes)
-    let decalImage = new THREE.TextureLoader().load('assets/testImage.png');
+    let decalImage = new THREE.TextureLoader().load('assets/from-website.png');
     let decalMaterial = new THREE.MeshPhongMaterial({
         map: decalImage,
         depthWrite: false, 
