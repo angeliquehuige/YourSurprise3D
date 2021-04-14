@@ -37,7 +37,7 @@ scene.remove( cube )
 const loader = new GLTFLoader
 
 
-loader.load( '../assets/67ekln6jmvyc.gltf', function ( gltf ) {
+loader.load( './assets/67ekln6jmvyc.gltf', function ( gltf ) {
     mug = gltf.scene
     mug.traverse( function ( child ) {
         if ( child.isMesh ) {
@@ -94,29 +94,159 @@ function onClick( event ) {
     var mesh = meshes[1]
     var intersects = raycaster.intersectObject( mesh );
     
-    if ( intersects.length > 0 ) {
-    
-        var n = intersects[ 0 ].face.normal.clone();
-        n.transformDirection( mesh.matrixWorld );
-        n.add( intersects[ 0 ].point );
-    
-        var position = intersects[ 0 ].point;
-        position.x = 0
-        position.y = 5
-        position.z = 30
 
-        var box = new THREE.Box3().setFromObject( mug );
-        console.log( box.min, box.max, box.getSize() );
-        var sizeScale = 6
-        var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
-        
-        var decalGeometry = new DecalGeometry( mesh, position, new THREE.Euler(0,0,0), size );
-                    
-        var decal = new THREE.Mesh( decalGeometry, decalMaterial );
-        scene.add( decal );
+    // Functions for loading the images in the right order on the right place
+
+    var { n, position, box, sizeScale, size, decal } = decalMid();
+
+    var { n, position, box, sizeScale, size, decal } = decalMidLeft();
+
+    var { n, position, box, sizeScale, size, decal } = decalMidRight();
+
+    var { n, position, box, sizeScale, size, decal, decalGeometryLeft } = decalLeft();
+
+    var { n, position, box, sizeScale, size, decal, decalGeometryLeft } = decalRight();
     
+
+    function decalRight() {
+        if (intersects.length > 0) {
+
+            var n = intersects[0].face.normal.clone();
+            n.transformDirection(mesh.matrixWorld);
+            n.add(intersects[0].point);
+
+            var position = intersects[0].point;
+            position.x = 30;
+            position.y = 3;
+            position.z = 44;
+
+            var box = new THREE.Box3().setFromObject(mug);
+            console.log(box.min, box.max, box.getSize());
+            var sizeScale = 6;
+            // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
+            var size = new THREE.Vector3(122, 60, 8); // Image resize (width, height, depth)
+
+            var decalGeometryLeft = new DecalGeometry(mesh, position, new THREE.Euler(0, 1.6, 0), size);
+
+
+            var decal = new THREE.Mesh(decalGeometryLeft, decalMaterial);
+            scene.add(decal);
+
+        }
+        return { n, position, box, sizeScale, size, decal, decalGeometryLeft };
     }
-    
+
+    function decalMidRight() {
+        if (intersects.length > 0) {
+
+            var n = intersects[0].face.normal.clone();
+            n.transformDirection(mesh.matrixWorld);
+            n.add(intersects[0].point);
+
+            var position = intersects[0].point;
+            position.x = 10;
+            position.y = 3;
+            position.z = 39.87;
+
+            var box = new THREE.Box3().setFromObject(mug);
+            console.log(box.min, box.max, box.getSize());
+            var sizeScale = 6;
+            // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
+            var size = new THREE.Vector3(122, 60, 8); // Image resize (width, height, depth)
+
+            var decalGeometryMidRight = new DecalGeometry(mesh, position, new THREE.Euler(0, 1, 0), size);
+
+
+            var decal = new THREE.Mesh(decalGeometryMidRight, decalMaterial);
+            scene.add(decal);
+
+        }
+        return { n, position, box, sizeScale, size, decal };
+    }
+
+    function decalMid() {
+        if (intersects.length > 0) {
+
+            var n = intersects[0].face.normal.clone();
+            n.transformDirection(mesh.matrixWorld);
+            n.add(intersects[0].point);
+
+            var position = intersects[0].point;
+            position.x = 0;
+            position.y = 3;
+            position.z = 30;
+
+            var box = new THREE.Box3().setFromObject(mug);
+            console.log(box.min, box.max, box.getSize());
+            var sizeScale = 6;
+            // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
+            var size = new THREE.Vector3(122, 60, 10); // Image resize (width, height, depth)
+
+            var decalGeometryMid = new DecalGeometry(mesh, position, new THREE.Euler(0, 0, 0), size);
+
+
+            var decal = new THREE.Mesh(decalGeometryMid, decalMaterial);
+            scene.add(decal);
+
+        }
+        return { n, position, box, sizeScale, size, decal };
+    }
+
+    function decalMidLeft() {
+        if (intersects.length > 0) {
+
+            var n = intersects[0].face.normal.clone();
+            n.transformDirection(mesh.matrixWorld);
+            n.add(intersects[0].point);
+
+            var position = intersects[0].point;
+            position.x = -10;
+            position.y = 3;
+            position.z = 39.79;
+
+            var box = new THREE.Box3().setFromObject(mug);
+            console.log(box.min, box.max, box.getSize());
+            var sizeScale = 6;
+            // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
+            var size = new THREE.Vector3(122, 60, 8); // Image resize (width, height, depth)
+
+            var decalGeometryMidLeft = new DecalGeometry(mesh, position, new THREE.Euler(0, -1, 0), size);
+
+
+            var decal = new THREE.Mesh(decalGeometryMidLeft, decalMaterial);
+            scene.add(decal);
+
+        }
+        return { n, position, box, sizeScale, size, decal };
+    }
+
+    function decalLeft() {
+        if (intersects.length > 0) {
+
+            var n = intersects[0].face.normal.clone();
+            n.transformDirection(mesh.matrixWorld);
+            n.add(intersects[0].point);
+
+            var position = intersects[0].point;
+            position.x = -28;
+            position.y = 3;
+            position.z = 43.34;
+
+            var box = new THREE.Box3().setFromObject(mug);
+            console.log(box.min, box.max, box.getSize());
+            var sizeScale = 6;
+            // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
+            var size = new THREE.Vector3(122, 60, 8); // Image resize (width, height, depth)
+
+            var decalGeometryLeft = new DecalGeometry(mesh, position, new THREE.Euler(0, -1.6, 0), size);
+
+
+            var decal = new THREE.Mesh(decalGeometryLeft, decalMaterial);
+            scene.add(decal);
+
+        }
+        return { n, position, box, sizeScale, size, decal, decalGeometryLeft };
+    }
 }
 
 
