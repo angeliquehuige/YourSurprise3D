@@ -37,7 +37,7 @@ scene.remove( cube )
 const loader = new GLTFLoader
 
 
-loader.load( '../assets/67ekln6jmvyc.gltf', function ( gltf ) {
+loader.load( 'assets/67ekln6jmvyc.gltf', function ( gltf ) {
     mug = gltf.scene
     mug.traverse( function ( child ) {
         if ( child.isMesh ) {
@@ -70,7 +70,7 @@ loader.load( '../assets/67ekln6jmvyc.gltf', function ( gltf ) {
 
 function addDecalToMesh() {
     console.log(meshes)
-    let decalImage = new THREE.TextureLoader().load('assets/testImage.png');
+    let decalImage = new THREE.TextureLoader().load('assets/from-website.png');
     let decalMaterial = new THREE.MeshPhongMaterial({
         map: decalImage,
         depthWrite: false, 
