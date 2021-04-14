@@ -6,6 +6,9 @@ let meshes = [];
 let mug;
 var mouse, raycaster, helper, decalMaterial;
 
+var reader = new FileReader();
+let imageSource = document.getElementById("image").files[0];
+
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -20,12 +23,14 @@ camera.position.set( 0, 20, 100 );
 controls.update();
         
 // Load Light
-var ambientLight = new THREE.AmbientLight( 0xcccccc );
+var ambientLight = new THREE.AmbientLight( 0xdddddd );
 scene.add( ambientLight );
         
-var directionalLight = new THREE.DirectionalLight( 0xffffff );
+var directionalLight = new THREE.DirectionalLight( 0xdddddd );
 directionalLight.position.set( 0, 1, 1 ).normalize();
-scene.add( directionalLight );		
+scene.add( directionalLight );
+
+scene.background = new THREE.Color( 0xf5f5f5 );
 
 const geometry = new THREE.BoxGeometry();
 const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
@@ -69,8 +74,17 @@ loader.load( 'assets/67ekln6jmvyc.gltf', function ( gltf ) {
 
 
 function addDecalToMesh() {
-    console.log(meshes)
-    let decalImage = new THREE.TextureLoader().load('assets/from-website.png');
+    let decalImage;
+    try {
+        //decalImage = new THREE.TextureLoader().load(reader.readAsDataURL());
+        //console.log(decalImage);
+        let decalImage = fileToUrl(imageSource);
+        console.log('string ' + decalImage)
+    } catch( error ) {
+        console.log('catch')
+        decalImage = new THREE.TextureLoader().load('assets/dolan.png')
+    }
+    
     let decalMaterial = new THREE.MeshPhongMaterial({
         map: decalImage,
         depthWrite: false, 
@@ -84,11 +98,15 @@ function addDecalToMesh() {
 
 
 function onClick( event ) {
-    event.preventDefault();
-
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
     
+    let imageSource = document.getElementById("image").files[0];
+    console.log(imageSource);
+    console.log('event ' + json.parse(event))
+
+    addDecalToMesh();
+
     raycaster.setFromCamera( mouse, camera );
 
     var mesh = meshes[1]
@@ -102,13 +120,14 @@ function onClick( event ) {
     
         var position = intersects[ 0 ].point;
         position.x = 0
-        position.y = 5
+        position.y = 3.5
         position.z = 30
+        
 
         var box = new THREE.Box3().setFromObject( mug );
-        console.log( box.min, box.max, box.getSize() );
+        // console.log( box.min, box.max, box.getSize() );
         var sizeScale = 6
-        var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
+        var size = new THREE.Vector3( box.getSize().x, box.getSize().y - 5, box.getSize().z);
         
         var decalGeometry = new DecalGeometry( mesh, position, new THREE.Euler(0,0,0), size );
                     
@@ -119,11 +138,45 @@ function onClick( event ) {
     
 }
 
-
 function animate() {
 	requestAnimationFrame( animate );
     // mug.rotation.z += 0.001
     // scene.rotation.y += 0.001
 	renderer.render( scene, camera );
 }
+
 animate();
+
+//file upload
+// function readURL(input) {
+//     console.log('file upload working')
+//     if (input.files && input.files[0]) {
+//         var reader = new FileReader();
+
+//         reader.onload = function (img) {
+//             document.getElementById('image').src =  img.target.result;
+//         }
+
+//         reader.readAsDataURL(input.files[0]);
+//     }
+// }
+
+function openImg(event) {
+    console.log(event.target.files[0])
+    
+    let imageSource = document.getElementById("image").files[0];
+}
+
+function fileToUrl(file) {
+    let canvas = document.getElementById('test');
+    let context = canvas.getContext("2d");
+
+    context.drawImage(file, 0, 0);
+
+    // const blob = new Blob(file);
+    // let kaas = URL.createObjectURL(blob);
+
+    // return kaas.href;
+    //return URL.revokeObjectURL(blob);
+}
+
