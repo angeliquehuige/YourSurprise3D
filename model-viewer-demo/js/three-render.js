@@ -11,6 +11,7 @@ const renderer = new THREE.WebGLRenderer();
 let meshes = [];
 let model;
 let cameraLight;
+
 init()
 function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -32,6 +33,7 @@ function init() {
     animate();
 }
 
+// Load orbitcontroller
 function loadControls(camera, renderer) {
     const controls = new OrbitControls( camera, renderer.domElement );
     camera.position.set( 0, 20, 100 );
@@ -51,6 +53,7 @@ function addDirectionalLight(x,y,z, color = 0xffffff, intensity = 1.0, range = 1
     return directionalLight
 }
 
+// Load a model, get meshes, and put image on model mesh
 function loadModel(modelName) {
     loader.load(`assets/${modelName}`, function ( gltf ) {
         model = gltf.scene
@@ -94,7 +97,7 @@ function generateDecalMaterialFromImage(image) {
     return decalMaterial
 }
 
-
+// function for putting a decal material on a mesh
 function putDecalOnMesh(mesh, decalMaterial) {
     var position = new THREE.Vector3( 0, 0, 0 );
 
