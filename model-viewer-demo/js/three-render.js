@@ -139,12 +139,10 @@ async function activateXR(event) {
     removeCanvas.parentNode.removeChild(removeCanvas);
 
     event.preventDefault()
+    const sceneXR = new THREE.Scene();
     const canvas = document.createElement("canvas");
     document.body.appendChild(canvas);
     const gl = canvas.getContext("webgl", {xrCompatible: true});
-
-    const camera = new THREE.PerspectiveCamera();
-    camera.matrixAutoUpdate = false;
 
     navigator.xr.supportsSession('immersive-vr').then(() => {
         console.log("Immersive VR is supported: ");
@@ -152,12 +150,49 @@ async function activateXR(event) {
         console.log("Immersive VR is not supported: " + err);
     });
 
-    const session = await navigator.xr.requestSession("immersive-ar");
+    // Set up the WebGLRenderer, which handles rendering to the session's base layer.
+    const renderer = new THREE.WebGLRenderer({
+        alpha: true,
+        preserveDrawingBuffer: true,
+        canvas: canvas,
+        context: gl
+    });
+    renderer.autoClear = false;
+    renderer.xr.enabled = true;
+    
+    // The API directly updates the camera matrices.
+    // Disable matrix auto updates so three.js doesn't attempt
+    // to handle the matrices independently.
+    const camera = new THREE.PerspectiveCamera();
+    camera.matrixAutoUpdate = false;
+  
+    let reticle;
+    loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/reticle/reticle.gltf", function(gltf) {
+      reticle = gltf.scene;
+      reticle.visible = false;
+      sceneXR.add(reticle);
+    })
+
+    const session = await navigator.xr.requestSession("immersive-ar", {requiredFeatures: ['hit-test']});
     session.updateRenderState({
         baseLayer: new XRWebGLLayer(session, gl)
     });
 
     const referenceSpace = await session.requestReferenceSpace("local");
+
+    // Create another XRReferenceSpace that has the viewer as the origin.
+    const viewerSpace = await session.requestReferenceSpace('viewer');
+    // Perform hit testing using the viewer as origin.
+    const hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
+
+    // Place model on reticle location
+    // session.addEventListener("select", (event) => {
+    //     if (model) {
+    //       const clone = model.clone();
+    //       sceneXR.add(clone);
+    //       clone.position.copy(reticle.position);
+    //     }
+    //   });      
 
     // Create a render loop that allows us to draw on the AR view.
     const onXRFrame = (time, frame) => {
@@ -182,8 +217,18 @@ async function activateXR(event) {
             camera.projectionMatrix.fromArray(view.projectionMatrix);
             camera.updateMatrixWorld(true);
 
+            const hitTestResults = frame.getHitTestResults(hitTestSource);
+            if (hitTestResults.length > 0 && reticle) {
+                const hitPose = hitTestResults[0].getPose(referenceSpace);
+                reticle.visible = true;
+                reticle.scale.set(0.3,0.3,0.3)
+                reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z)
+                reticle.updateMatrixWorld(true);
+            }
+
+
             // Render the scene with THREE.WebGLRenderer.
-            renderer.render(scene, camera)
+            renderer.render(sceneXR, camera)
         }
     }
     session.requestAnimationFrame(onXRFrame);
