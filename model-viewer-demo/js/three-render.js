@@ -18,7 +18,12 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    //test rob
+
+
+
+
+    
+    //start preview image that works
     let imageInput = document.getElementById('picture');
 
     if(imageInput){
@@ -29,23 +34,41 @@ function init() {
 
     const previewImage = (imageInput) => {
         if (imageInput.files && imageInput.files[0]){
-            var reader = new FileReader();
-            reader.onload = (event) => {
+            const reader = new FileReader();
+            
+            // #id div previews
+            const previews = document.getElementById('previews');
+
+            // saves the image to local storage
+            reader.addEventListener("load", () => {
+                localStorage.setItem("current-image", reader.result);
+                putDecalOnMesh(meshes[1], generateDecalMaterial(localStorage.getItem("current-image")));
+            });
+
+            reader.onload = (event) => {                              
+                // delete old preview image
+                previews.parentNode.removeChild(previews);
+
+                // add img html element to the div with results
                 imgPath = event.currentTarget.result;
-                console.log();
+                const img = `<img src="${imgPath}" height="300">`;
+                previews.insertAdjacentHTML('beforeend', img);
             }
             reader.readAsDataURL(imageInput.files[0]);
         }
     }
-    //end test rob
+    //end preview image that works
 
-    //document.getElementById("image").addEventListener("change", openImage);
+
+
+
+
     // Load the Orbitcontroller
     loadControls(camera, renderer)
 
     // Load Light
     addAmbientLight()
-    addDirectionalLight(0,1,1)
+    //addDirectionalLight(0,1,1)
     cameraLight = addDirectionalLight(0, 20, 100, 0xffffff, 0.5, 100000)
 
     // Load Model
@@ -91,7 +114,6 @@ function loadModel(modelName) {
         model.position.y = -30
         scene.add( model );
 
-        putDecalOnMesh(meshes[1], generateDecalMaterial(imgPath))
     }, undefined, function ( error ) {
         console.error( error );
     } );
@@ -104,17 +126,6 @@ function generateDecalMaterial(imageName) {
         depthWrite: false, 
         polygonOffset: true, 
         polygonOffsetFactor: - 4, 
-    });
-    return decalMaterial
-}
-
-function generateDecalMaterialFromImage(image) {
-    let decalImage = new THREE.TextureLoader().load(image);
-    let decalMaterial = new THREE.MeshPhongMaterial({
-        map: decalImage,
-        depthWrite: false,
-        polygonOffset: true,
-        polygonOffsetFactor: - 4,
     });
     return decalMaterial
 }
@@ -148,9 +159,3 @@ function animate() {
     requestAnimationFrame( animate );
 }
 
-function openImage(event) {
-    console.log("Image")
-    console.log(event.target)
-    let imageDecal = generateDecalMaterialFromImage(event.target.files[0])
-    putDecalOnMesh(meshes[1], imageDecal)
-}
