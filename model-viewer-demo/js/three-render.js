@@ -97,24 +97,6 @@ function generateDecalMaterialFromImage(image) {
     return decalMaterial
 }
 
-// function for putting a decal material on a mesh
-function putDecalOnMesh(mesh, decalMaterial) {
-
-    decalLoad();
-    // var position = new THREE.Vector3( 0, 0, 0 );
-
-    // // Get model sizes
-    // var box = new THREE.Box3().setFromObject(model);
-    // console.log(box.min, box.max, box.getSize());
-    // // Scale decal to model size
-    // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
-
-    // // Generate decal and add to model (scene)
-    // var decalGeometry = new DecalGeometry(mesh, position, new THREE.Euler(0,0,0), size);
-    // var decal = new THREE.Mesh(decalGeometry, decalMaterial);
-    // scene.add(decal);
-}
-
 function eulerRotateConvert(degrees) {
     let multiply = degrees / 90
     return (Math.PI / 2) * multiply 
@@ -136,41 +118,55 @@ function openImage(event) {
 }
 
 // Functions for loading the images in the right order on the right place
-function decalLoad() {
+function putDecalOnMesh(mesh, decalMaterial) {
 
-    var { n, position, box, sizeScale, size, decal } = decalObject(0, 30, 10, 0); //Mid
-    var { n, position, box, sizeScale, size, decal } = decalObject(-10, 39.79, 8, -1); //MidLeft
-    var { n, position, box, sizeScale, size, decal } = decalObject(10, 39.87, 8, 1); //MidRight
-    var { n, position, box, sizeScale, size, decal } = decalObject(-28, 43.34, 8, -1.6); //Left
-    var { n, position, box, sizeScale, size, decal } = decalObject(30, 44, 8, 1.6); //Right
-}
+    var { position, box, size, decalGeometry, decal } = decalLeft();
+    var { position, box, size, decalGeometry, decal } = decalRight();
+    var { position, box, size, decalGeometry, decal } = decalMid();
 
-function decalObject(xPosition, zPosition, imageDepth, decalAngle) {
-    if (intersects.length > 0) {
-
-        // var n = intersects[0].face.normal.clone();
-        // n.transformDirection(mesh.matrixWorld);
-        // n.add(intersects[0].point);
-
-        var position = intersects[0].point;
-        // Position of the image
-        position.x = xPosition;
-        position.y = 3;
-        position.z = zPosition;
-
-        var box = new THREE.Box3().setFromObject(mug);
+    
+    function decalLeft() {
+        var position = new THREE.Vector3(-30, 17, 58.85);
+        // Get model sizes
+        var box = new THREE.Box3().setFromObject(model);
         console.log(box.min, box.max, box.getSize());
-        var sizeScale = 6;
-        // Image resize (width, height, depth)
-        var size = new THREE.Vector3(122, 60, imageDepth); 
+        // Scale decal to model size
+        var size = new THREE.Vector3(180, 89, 90);
 
-        // Angle of where the image is displayed on the object
-        var decalGeometry = new DecalGeometry(mesh, position, new THREE.Euler(0, decalAngle, 0), size);
-
-
+        // Generate decal and add to model (scene)
+        var decalGeometry = new DecalGeometry(mesh, position, new THREE.Euler(0, -1.6, 0), size);
         var decal = new THREE.Mesh(decalGeometry, decalMaterial);
         scene.add(decal);
-
+        return { position, box, size, decalGeometry, decal };
     }
-    return { n, position, box, sizeScale, size, decal };
+
+    function decalMid() {
+        var position = new THREE.Vector3(0, 17, 40);
+        // Get model sizes
+        var box = new THREE.Box3().setFromObject(model);
+        console.log(box.min, box.max, box.getSize());
+        // Scale decal to model size
+        var size = new THREE.Vector3(180, 89, 28);
+
+        // Generate decal and add to model (scene)
+        var decalGeometry = new DecalGeometry(mesh, position, new THREE.Euler(0, 0, 0), size);
+        var decal = new THREE.Mesh(decalGeometry, decalMaterial);
+        scene.add(decal);
+        return { position, box, size, decalGeometry, decal };
+    }
+
+    function decalRight() {
+        var position = new THREE.Vector3(30, 17, 58.85);
+        // Get model sizes
+        var box = new THREE.Box3().setFromObject(model);
+        console.log(box.min, box.max, box.getSize());
+        // Scale decal to model size
+        var size = new THREE.Vector3(180, 89, 90);
+
+        // Generate decal and add to model (scene)
+        var decalGeometry = new DecalGeometry(mesh, position, new THREE.Euler(0, 1.6, 0), size);
+        var decal = new THREE.Mesh(decalGeometry, decalMaterial);
+        scene.add(decal);
+        return { position, box, size, decalGeometry, decal };
+    }
 }
