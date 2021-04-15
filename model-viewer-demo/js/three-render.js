@@ -226,7 +226,6 @@ function decalMidRight() {
         var box = new THREE.Box3().setFromObject(mug);
         console.log(box.min, box.max, box.getSize());
         var sizeScale = 6;
-        // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
         var size = new THREE.Vector3(122, 60, 8); // Image resize (width, height, depth)
 
         var decalGeometryMidRight = new DecalGeometry(mesh, position, new THREE.Euler(0, 1, 0), size);
@@ -254,7 +253,6 @@ function decalMid() {
         var box = new THREE.Box3().setFromObject(mug);
         console.log(box.min, box.max, box.getSize());
         var sizeScale = 6;
-        // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
         var size = new THREE.Vector3(122, 60, 10); // Image resize (width, height, depth)
 
         var decalGeometryMid = new DecalGeometry(mesh, position, new THREE.Euler(0, 0, 0), size);
@@ -282,7 +280,6 @@ function decalMidLeft() {
         var box = new THREE.Box3().setFromObject(mug);
         console.log(box.min, box.max, box.getSize());
         var sizeScale = 6;
-        // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
         var size = new THREE.Vector3(122, 60, 8); // Image resize (width, height, depth)
 
         var decalGeometryMidLeft = new DecalGeometry(mesh, position, new THREE.Euler(0, -1, 0), size);
@@ -310,7 +307,6 @@ function decalLeft() {
         var box = new THREE.Box3().setFromObject(mug);
         console.log(box.min, box.max, box.getSize());
         var sizeScale = 6;
-        // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
         var size = new THREE.Vector3(122, 60, 8); // Image resize (width, height, depth)
 
         var decalGeometryLeft = new DecalGeometry(mesh, position, new THREE.Euler(0, -1.6, 0), size);
