@@ -62,7 +62,8 @@ function init() {
 
     // Load Light
     addAmbientLight()
-    cameraLight = addDirectionalLight(0, 20, 100, 0xffffff, 0.6, 100000)
+    addDirectionalLight(0,1,1)
+    cameraLight = addDirectionalLight(0, 20, 100, 0xffffff, 1.0, 100000)
 
     // Load Model
     loadModel("67ekln6jmvyc.gltf")
@@ -107,7 +108,7 @@ function loadModel(modelName) {
         model.position.y = -30
         scene.add( model );
 
-        putDecalOnMesh(meshes[1], generateDecalMaterial("from-website.png"))
+        putDecalOnMesh(meshes[1], generateDecalMaterial("testImage.png"))
     }, undefined, function ( error ) {
         console.error( error );
     } );
@@ -152,13 +153,13 @@ function generateDecalMaterialFromImage(image) {
 
 // function for putting a decal material on a mesh
 function putDecalOnMesh(mesh, decalMaterial) {
-    var position = new THREE.Vector3( 0, 17, 0 );
+    var position = new THREE.Vector3( 0, 0, 0 );
 
     // Get model sizes
     var box = new THREE.Box3().setFromObject(model);
     console.log(box.min, box.max, box.getSize());
     // Scale decal to model size
-    var size = new THREE.Vector3( box.getSize().x, box.getSize().y - 3, box.getSize().z);
+    var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
 
 <<<<<<< HEAD
 function onClick( event ) {
