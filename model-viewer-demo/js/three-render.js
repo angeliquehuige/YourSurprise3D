@@ -11,20 +11,42 @@ const renderer = new THREE.WebGLRenderer();
 let meshes = [];
 let model;
 let cameraLight;
+let imgPath;
 
 init()
 function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    document.getElementById("image").addEventListener("change", openImage)
+    //test rob
+    let imageInput = document.getElementById('picture');
+
+    if(imageInput){
+        imageInput.addEventListener('change', () => {
+            previewImage(imageInput);
+        });
+    }
+
+    const previewImage = (imageInput) => {
+        if (imageInput.files && imageInput.files[0]){
+            var reader = new FileReader();
+            reader.onload = (event) => {
+                imgPath = event.currentTarget.result;
+                console.log();
+            }
+            reader.readAsDataURL(imageInput.files[0]);
+        }
+    }
+    //end test rob
+
+    //document.getElementById("image").addEventListener("change", openImage);
     // Load the Orbitcontroller
     loadControls(camera, renderer)
 
     // Load Light
     addAmbientLight()
     addDirectionalLight(0,1,1)
-    cameraLight = addDirectionalLight(0, 20, 100, 0xffffff, 1.0, 100000)
+    cameraLight = addDirectionalLight(0, 20, 100, 0xffffff, 0.5, 100000)
 
     // Load Model
     loadModel("67ekln6jmvyc.gltf")
@@ -69,14 +91,14 @@ function loadModel(modelName) {
         model.position.y = -30
         scene.add( model );
 
-        putDecalOnMesh(meshes[1], generateDecalMaterial("testImage.png"))
+        putDecalOnMesh(meshes[1], generateDecalMaterial(imgPath))
     }, undefined, function ( error ) {
         console.error( error );
     } );
 }
 
 function generateDecalMaterial(imageName) {
-    let decalImage = new THREE.TextureLoader().load(`assets/${imageName}`);
+    let decalImage = new THREE.TextureLoader().load(imageName);
     let decalMaterial = new THREE.MeshPhongMaterial({
         map: decalImage,
         depthWrite: false, 
@@ -87,7 +109,7 @@ function generateDecalMaterial(imageName) {
 }
 
 function generateDecalMaterialFromImage(image) {
-    let decalImage = new THREE.TextureLoader().load(reader.readAsDataURL(image));
+    let decalImage = new THREE.TextureLoader().load(image);
     let decalMaterial = new THREE.MeshPhongMaterial({
         map: decalImage,
         depthWrite: false,
@@ -99,7 +121,7 @@ function generateDecalMaterialFromImage(image) {
 
 // function for putting a decal material on a mesh
 function putDecalOnMesh(mesh, decalMaterial) {
-    var position = new THREE.Vector3( 0, 0, 0 );
+    var position = new THREE.Vector3( 0, 10, 0 );
 
     // Get model sizes
     var box = new THREE.Box3().setFromObject(model);
@@ -119,11 +141,11 @@ function eulerRotateConvert(degrees) {
 }
 
 function animate() {
-	requestAnimationFrame( animate );
     // model.rotation.z += 0.001
     cameraLight.position.copy(camera.position);
     // scene.rotation.y += 0.001
 	renderer.render( scene, camera );
+    requestAnimationFrame( animate );
 }
 
 function openImage(event) {
