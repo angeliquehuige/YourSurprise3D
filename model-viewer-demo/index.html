@@ -1,31 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Demo model-viewer</title>
-    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="assets/main.css">
-    <style>
-        model-viewer{
-            width: 700px;
-            height: 500px;
-            margin-top: 150px;
-            margin-left: 200px;
-        }
-    </style>
-</head>
-<body>
-    <model-viewer 
-        src="assets/4b7f80b2-1419-45b5-8f83-dc42b3e175da_qwe2.glb"
-        ios-src="assets/scene2kphhixfz8mth3o1.usdz"
-        interaction-prompt="when-focused"
-        interaction-prompt-threshold="1000"
-        auto-rotate-delay="2000"
-        rotation-per-second="40deg"
-        camera-controls
-        auto-rotate
-        ar>
-    </model-viewer>
-</body>
-
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+		<form action="readURL">
+            <input name="image" id="image" type="file" class="custom-file-input">
+        </form>
+		<script src="./node_modules/three/build/three.js"></script>
+		<!-- <script type="module" src="js/three-imports.js"></script> -->
+		<!-- <script type="module" src="./js/three-helper.js"></script> -->
+		<script type="module" src="./js/three-render.js"></script>
+	</body>
 </html>
