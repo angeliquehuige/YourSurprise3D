@@ -99,18 +99,20 @@ function generateDecalMaterialFromImage(image) {
 
 // function for putting a decal material on a mesh
 function putDecalOnMesh(mesh, decalMaterial) {
-    var position = new THREE.Vector3( 0, 0, 0 );
 
-    // Get model sizes
-    var box = new THREE.Box3().setFromObject(model);
-    console.log(box.min, box.max, box.getSize());
-    // Scale decal to model size
-    var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
+    decalLoad();
+    // var position = new THREE.Vector3( 0, 0, 0 );
 
-    // Generate decal and add to model (scene)
-    var decalGeometry = new DecalGeometry(mesh, position, new THREE.Euler(0,0,0), size);
-    var decal = new THREE.Mesh(decalGeometry, decalMaterial);
-    scene.add(decal);
+    // // Get model sizes
+    // var box = new THREE.Box3().setFromObject(model);
+    // console.log(box.min, box.max, box.getSize());
+    // // Scale decal to model size
+    // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
+
+    // // Generate decal and add to model (scene)
+    // var decalGeometry = new DecalGeometry(mesh, position, new THREE.Euler(0,0,0), size);
+    // var decal = new THREE.Mesh(decalGeometry, decalMaterial);
+    // scene.add(decal);
 }
 
 function eulerRotateConvert(degrees) {
@@ -131,4 +133,192 @@ function openImage(event) {
     console.log(event.target)
     let imageDecal = generateDecalMaterialFromImage(event.target.files[0])
     putDecalOnMesh(meshes[1], imageDecal)
+}
+
+// Functions for loading the images in the right order on the right place
+function decalLoad() {
+    // var { n, position, box, sizeScale, size, decal } = decalMid();
+    // var { n, position, box, sizeScale, size, decal } = decalMidLeft();
+    // var { n, position, box, sizeScale, size, decal } = decalMidRight();
+    // var { n, position, box, sizeScale, size, decal } = decalLeft();
+    // var { n, position, box, sizeScale, size, decal } = decalRight();
+
+    var { n, position, box, sizeScale, size, decal } = decalObject(0, 30, 10, 0); //Mid
+    var { n, position, box, sizeScale, size, decal } = decalObject(-10, 39.79, 8, -1); //MidLeft
+    var { n, position, box, sizeScale, size, decal } = decalObject(10, 39.87, 8, 1); //MidRight
+    var { n, position, box, sizeScale, size, decal } = decalObject(-28, 43.34, 8, -1.6); //Left
+    var { n, position, box, sizeScale, size, decal } = decalObject(30, 44, 8, 1.6); //Right
+
+}
+
+function decalObject(xPosition, zPosition, imageDepth, decalAngle) {
+    if (intersects.length > 0) {
+
+        // var n = intersects[0].face.normal.clone();
+        // n.transformDirection(mesh.matrixWorld);
+        // n.add(intersects[0].point);
+
+        var position = intersects[0].point;
+        // Position of the image
+        position.x = xPosition;
+        position.y = 3;
+        position.z = zPosition;
+
+        var box = new THREE.Box3().setFromObject(mug);
+        console.log(box.min, box.max, box.getSize());
+        var sizeScale = 6;
+        // Image resize (width, height, depth)
+        var size = new THREE.Vector3(122, 60, imageDepth); 
+
+        // Angle of where the image is displayed on the object
+        var decalGeometry = new DecalGeometry(mesh, position, new THREE.Euler(0, decalAngle, 0), size);
+
+
+        var decal = new THREE.Mesh(decalGeometry, decalMaterial);
+        scene.add(decal);
+
+    }
+    return { n, position, box, sizeScale, size, decal };
+}
+
+function decalRight() {
+    if (intersects.length > 0) {
+
+        // var n = intersects[0].face.normal.clone();
+        // n.transformDirection(mesh.matrixWorld);
+        // n.add(intersects[0].point);
+
+        var position = intersects[0].point;
+        // Position of the image
+        position.x = 30;
+        position.y = 3;
+        position.z = 44;
+
+        var box = new THREE.Box3().setFromObject(mug);
+        console.log(box.min, box.max, box.getSize());
+        var sizeScale = 6;
+        // Image resize (width, height, depth)
+        var size = new THREE.Vector3(122, 60, 8); 
+
+        // Angle of where the image is displayed on the object
+        var decalGeometryLeft = new DecalGeometry(mesh, position, new THREE.Euler(0, 1.6, 0), size);
+
+
+        var decal = new THREE.Mesh(decalGeometryLeft, decalMaterial);
+        scene.add(decal);
+
+    }
+    return { n, position, box, sizeScale, size, decal };
+}
+
+function decalMidRight() {
+    if (intersects.length > 0) {
+
+        // var n = intersects[0].face.normal.clone();
+        // n.transformDirection(mesh.matrixWorld);
+        // n.add(intersects[0].point);
+
+        var position = intersects[0].point;
+        position.x = 10;
+        position.y = 3;
+        position.z = 39.87;
+
+        var box = new THREE.Box3().setFromObject(mug);
+        console.log(box.min, box.max, box.getSize());
+        var sizeScale = 6;
+        // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
+        var size = new THREE.Vector3(122, 60, 8); // Image resize (width, height, depth)
+
+        var decalGeometryMidRight = new DecalGeometry(mesh, position, new THREE.Euler(0, 1, 0), size);
+
+
+        var decal = new THREE.Mesh(decalGeometryMidRight, decalMaterial);
+        scene.add(decal);
+
+    }
+    return { n, position, box, sizeScale, size, decal };
+}
+
+function decalMid() {
+    if (intersects.length > 0) {
+
+        // var n = intersects[0].face.normal.clone();
+        // n.transformDirection(mesh.matrixWorld);
+        // n.add(intersects[0].point);
+
+        var position = intersects[0].point;
+        position.x = 0;
+        position.y = 3;
+        position.z = 30;
+
+        var box = new THREE.Box3().setFromObject(mug);
+        console.log(box.min, box.max, box.getSize());
+        var sizeScale = 6;
+        // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
+        var size = new THREE.Vector3(122, 60, 10); // Image resize (width, height, depth)
+
+        var decalGeometryMid = new DecalGeometry(mesh, position, new THREE.Euler(0, 0, 0), size);
+
+
+        var decal = new THREE.Mesh(decalGeometryMid, decalMaterial);
+        scene.add(decal);
+
+    }
+    return { n, position, box, sizeScale, size, decal };
+}
+
+function decalMidLeft() {
+    if (intersects.length > 0) {
+
+        // var n = intersects[0].face.normal.clone();
+        // n.transformDirection(mesh.matrixWorld);
+        // n.add(intersects[0].point);
+
+        var position = intersects[0].point;
+        position.x = -10;
+        position.y = 3;
+        position.z = 39.79;
+
+        var box = new THREE.Box3().setFromObject(mug);
+        console.log(box.min, box.max, box.getSize());
+        var sizeScale = 6;
+        // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
+        var size = new THREE.Vector3(122, 60, 8); // Image resize (width, height, depth)
+
+        var decalGeometryMidLeft = new DecalGeometry(mesh, position, new THREE.Euler(0, -1, 0), size);
+
+
+        var decal = new THREE.Mesh(decalGeometryMidLeft, decalMaterial);
+        scene.add(decal);
+
+    }
+    return { n, position, box, sizeScale, size, decal };
+}
+
+function decalLeft() {
+    if (intersects.length > 0) {
+
+        // var n = intersects[0].face.normal.clone();
+        // n.transformDirection(mesh.matrixWorld);
+        // n.add(intersects[0].point);
+
+        var position = intersects[0].point;
+        position.x = -28;
+        position.y = 3;
+        position.z = 43.34;
+
+        var box = new THREE.Box3().setFromObject(mug);
+        console.log(box.min, box.max, box.getSize());
+        var sizeScale = 6;
+        // var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
+        var size = new THREE.Vector3(122, 60, 8); // Image resize (width, height, depth)
+
+        var decalGeometryLeft = new DecalGeometry(mesh, position, new THREE.Euler(0, -1.6, 0), size);
+
+
+        var decal = new THREE.Mesh(decalGeometryLeft, decalMaterial);
+        scene.add(decal);
+
+    }
+    return { n, position, box, sizeScale, size, decal };
 }
