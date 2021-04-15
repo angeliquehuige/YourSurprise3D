@@ -45,23 +45,13 @@ function init() {
                 putDecalOnMesh(meshes[1], generateDecalMaterial(localStorage.getItem("current-image")));
             });
 
-            reader.onload = (event) => {                              
-                // delete old preview image
-                previews.parentNode.removeChild(previews);
-
-                // add img html element to the div with results
+            reader.onload = (event) => {
                 imgPath = event.currentTarget.result;
-                const img = `<img src="${imgPath}" height="300">`;
-                previews.insertAdjacentHTML('beforeend', img);
             }
             reader.readAsDataURL(imageInput.files[0]);
         }
     }
     //end preview image that works
-
-
-
-
 
     // Load the Orbitcontroller
     loadControls(camera, renderer)
