@@ -74,19 +74,38 @@ function createImagePath(imageInput) {
     }
 };
 
-// Load orbitcontroller
+/**
+ * Load orbitcontroller
+ * @param {*} camera 
+ * @param {*} renderer 
+ */
 function loadControls(camera, renderer) {
     const controls = new OrbitControls( camera, renderer.domElement );
     camera.position.set( 0, 20, 100 );
     controls.update();
 }
 
+/**
+ * 
+ * @param {*} color 
+ * @returns 
+ */
 function addAmbientLight(color = 0xffffff) {
     var ambientLight = new THREE.AmbientLight(color);
     scene.add(ambientLight);
     return ambientLight
 }
 
+/**
+ * Add directional light in order to see the mug in the scene
+ * @param {*} x 
+ * @param {*} y 
+ * @param {*} z 
+ * @param {*} color 
+ * @param {*} intensity 
+ * @param {*} range 
+ * @returns 
+ */
 function addDirectionalLight(x,y,z, color = 0xffffff, intensity = 1.0, range = 10){
     var directionalLight = new THREE.DirectionalLight(color, intensity, range);
     directionalLight.position.set(x, y, z).normalize();
@@ -94,7 +113,10 @@ function addDirectionalLight(x,y,z, color = 0xffffff, intensity = 1.0, range = 1
     return directionalLight
 }
 
-// Load a model, get meshes, and put image on model mesh
+/**
+ *  Load a model, get meshes, and put image on model mesh
+ * @param {*} modelName 
+ */
 function loadModel(modelName) {
     loader.load(`assets/${modelName}`, function ( gltf ) {
         model = gltf.scene
@@ -115,6 +137,11 @@ function loadModel(modelName) {
     } );
 }
 
+/**
+ * Generate decialImage as Texure
+ * @param {*} imageName 
+ * @returns 
+ */
 function generateDecalMaterial(imageName) {
     let decalImage = new THREE.TextureLoader().load(imageName);
     let decalMaterial = new THREE.MeshPhongMaterial({
@@ -126,54 +153,32 @@ function generateDecalMaterial(imageName) {
     return decalMaterial
 }
 
-function generateDecalMaterialFromImage(image) {
-    let decalImage = new THREE.TextureLoader().load(reader.readAsDataURL(image));
-    let decalMaterial = new THREE.MeshPhongMaterial({
-        map: decalImage,
-        depthWrite: false,
-        polygonOffset: true,
-        polygonOffsetFactor: - 4,
-    });
-    return decalMaterial
-}
-
-// function for putting a decal material on a mesh
-function putDecalOnMesh(mesh, decalMaterial) {
-    var position = new THREE.Vector3( 0, 10, 0 );
-
-    // Get model sizes
-    var box = new THREE.Box3().setFromObject(model);
-    console.log(box.min, box.max, box.getSize());
-    // Scale decal to model size
-    var size = new THREE.Vector3( box.getSize().x, box.getSize().y, box.getSize().z);
-
-    // Generate decal and add to model (scene)
-    var decalGeometry = new DecalGeometry(mesh, position, new THREE.Euler(0,0,0), size);
-    var decal = new THREE.Mesh(decalGeometry, decalMaterial);
-    scene.add(decal);
-}
-
+/**
+ * Multiplyer
+ * @param {*} degrees 
+ * @returns 
+ */
 function eulerRotateConvert(degrees) {
     let multiply = degrees / 90
     return (Math.PI / 2) * multiply 
 }
 
+/**
+ * Animate the model
+ */
 function animate() {
-    // model.rotation.z += 0.001
-    cameraLight.position.copy(camera.position);
-    // scene.rotation.y += 0.001
-	renderer.render( scene, camera );
     requestAnimationFrame( animate );
+    //model.rotation.z += 0.001
+    scene.rotation.y += 0.001
+    cameraLight.position.copy(camera.position);
+	renderer.render( scene, camera );
 }
 
-function openImage(event) {
-    console.log("Image")
-    console.log(event.target)
-    let imageDecal = generateDecalMaterialFromImage(event.target.files[0])
-    putDecalOnMesh(meshes[1], imageDecal)
-}
-
-// Functions for loading the images in the right order on the right place
+/**
+ * Functions for loading the images in the right order on the right place
+ * @param {*} mesh 
+ * @param {*} decalMaterial 
+ */
 function putDecalOnMesh(mesh, decalMaterial) {
 
     var { position, box, size, decalGeometry, decal } = decalObject(-30, 58.85, 90, -1.6);
