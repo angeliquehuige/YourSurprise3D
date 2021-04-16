@@ -19,7 +19,7 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     // Edit Image
-    editImage();
+    insertImage();
 
     // Load the Orbitcontroller
     loadControls(camera, renderer)
@@ -39,7 +39,7 @@ function init() {
 /**
  * Insert new image and saves it to the local server
  */
-function editImage() {
+function insertImage() {
 
     // div id of insert button
     let imageInput = document.getElementById('picture');
@@ -47,31 +47,32 @@ function editImage() {
     // if statement checks if image is imported
     if (imageInput) {
         imageInput.addEventListener('change', () => {
-            previewImage(imageInput);
+            createImagePath(imageInput);
+        });
+
+        // saves the image to local storage
+        reader.addEventListener("load", () => {
+            localStorage.setItem("current-image", reader.result);
+            putDecalOnMesh(meshes[1], generateDecalMaterial(localStorage.getItem("current-image")));
         });
     }
-
-
-    const previewImage = (imageInput) => {
-        if (imageInput.files && imageInput.files[0]) {
-            const reader = new FileReader();
-
-            // saves the image to local storage
-            reader.addEventListener("load", () => {
-                localStorage.setItem("current-image", reader.result);
-                putDecalOnMesh(meshes[1], generateDecalMaterial(localStorage.getItem("current-image")));
-            });
-
-            // Genereert imgPath
-            reader.onload = (event) => {
-                imgPath = event.currentTarget.result;
-            };
-
-            // Starts reading the contents of the specified Blob, once finished, the result attribute contains a data: URL representing the file's data.
-            reader.readAsDataURL(imageInput.files[0]);
-        }
-    };
 }
+
+/**
+ * 
+ */
+function createImagePath(imageInput) {
+    if (imageInput.files && imageInput.files[0]) {
+        
+        // Generate imgPath
+        reader.onload = (event) => {
+            imgPath = event.currentTarget.result;
+        };
+
+        // Starts reading the contents of the specified Blob, once finished, the result attribute contains a data: URL representing the file's data.
+        reader.readAsDataURL(imageInput.files[0]);
+    }
+};
 
 // Load orbitcontroller
 function loadControls(camera, renderer) {
