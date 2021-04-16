@@ -9,7 +9,7 @@ const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.inner
 
 const renderer = new THREE.WebGLRenderer();
 let meshes = [];
-let model;
+let model, modelXR;
 let cameraLight;
 
 init()
@@ -58,6 +58,7 @@ function addDirectionalLight(x,y,z, color = 0xffffff, intensity = 1.0, range = 1
 function loadModel(modelName) {
     loader.load(`assets/${modelName}`, function ( gltf ) {
         model = gltf.scene
+        modelXR = gltf.scene
         model.traverse( function ( child ) {
             if ( child.isMesh ) {
                 console.log("MESH FOUND for model: ", modelName)
@@ -143,23 +144,22 @@ async function activateXR(event) {
     const canvas = document.createElement("canvas");
     document.body.appendChild(canvas);
     const gl = canvas.getContext("webgl", {xrCompatible: true});
-
-    navigator.xr.supportsSession('immersive-vr').then(() => {
-        console.log("Immersive VR is supported: ");
-    }).catch((err) => {
-        console.log("Immersive VR is not supported: " + err);
-    });
-
+    const shader = gl.createShader(gl.FRAGMENT_SHADER);
     // Set up the WebGLRenderer, which handles rendering to the session's base layer.
-    const renderer = new THREE.WebGLRenderer({
+    const rendererXR = new THREE.WebGLRenderer({
         alpha: true,
         preserveDrawingBuffer: true,
         canvas: canvas,
         context: gl
     });
-    renderer.autoClear = false;
-    renderer.xr.enabled = true;
+    rendererXR.autoClear = false;
+    rendererXR.xr.enabled = true;
     
+    navigator.xr.isSessionSupported('immersive-ar').then(() => {
+        console.log("Immersive AR is supported: ");
+    }).catch((err) => {
+        console.log("Immersive AR is not supported: " + err);
+    });
     // The API directly updates the camera matrices.
     // Disable matrix auto updates so three.js doesn't attempt
     // to handle the matrices independently.
@@ -172,6 +172,13 @@ async function activateXR(event) {
       reticle.visible = false;
       sceneXR.add(reticle);
     })
+  
+    const material = new THREE.MeshBasicMaterial({color: 0xff0000})
+    const cube = new THREE.Mesh(new THREE.BoxBufferGeometry(0.2, 0.2, 0.2), material);
+    cube.position.set(1, 1, 1);
+    sceneXR.add(cube);
+
+
 
     const session = await navigator.xr.requestSession("immersive-ar", {requiredFeatures: ['hit-test']});
     session.updateRenderState({
@@ -186,13 +193,14 @@ async function activateXR(event) {
     const hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
 
     // Place model on reticle location
-    // session.addEventListener("select", (event) => {
-    //     if (model) {
-    //       const clone = model.clone();
-    //       sceneXR.add(clone);
-    //       clone.position.copy(reticle.position);
-    //     }
-    //   });      
+    session.addEventListener("select", (event) => {
+        if (cube) {
+          console.log("Click")
+          const clone = cube.clone();
+          clone.position.copy(reticle.position);
+          sceneXR.add(clone);
+        }
+      });      
 
     // Create a render loop that allows us to draw on the AR view.
     const onXRFrame = (time, frame) => {
@@ -210,7 +218,7 @@ async function activateXR(event) {
             const view = pose.views[0];
 
             const viewport = session.renderState.baseLayer.getViewport(view);
-            renderer.setSize(viewport.width, viewport.height)
+            rendererXR.setSize(viewport.width, viewport.height)
 
             // Use the view's transform matrix and projection matrix to configure the THREE.camera.
             camera.matrix.fromArray(view.transform.matrix)
@@ -218,6 +226,7 @@ async function activateXR(event) {
             camera.updateMatrixWorld(true);
 
             const hitTestResults = frame.getHitTestResults(hitTestSource);
+            console.log("before hitTest,", hitTestResults.length )
             if (hitTestResults.length > 0 && reticle) {
                 const hitPose = hitTestResults[0].getPose(referenceSpace);
                 reticle.visible = true;
@@ -228,7 +237,7 @@ async function activateXR(event) {
 
 
             // Render the scene with THREE.WebGLRenderer.
-            renderer.render(sceneXR, camera)
+            rendererXR.render(sceneXR, camera)
         }
     }
     session.requestAnimationFrame(onXRFrame);
