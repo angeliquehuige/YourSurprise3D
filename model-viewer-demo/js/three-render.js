@@ -126,6 +126,17 @@ function generateDecalMaterial(imageName) {
     return decalMaterial
 }
 
+function generateDecalMaterialFromImage(image) {
+    let decalImage = new THREE.TextureLoader().load(reader.readAsDataURL(image));
+    let decalMaterial = new THREE.MeshPhongMaterial({
+        map: decalImage,
+        depthWrite: false,
+        polygonOffset: true,
+        polygonOffsetFactor: - 4,
+    });
+    return decalMaterial
+}
+
 // function for putting a decal material on a mesh
 function putDecalOnMesh(mesh, decalMaterial) {
     var position = new THREE.Vector3( 0, 10, 0 );
@@ -155,3 +166,33 @@ function animate() {
     requestAnimationFrame( animate );
 }
 
+function openImage(event) {
+    console.log("Image")
+    console.log(event.target)
+    let imageDecal = generateDecalMaterialFromImage(event.target.files[0])
+    putDecalOnMesh(meshes[1], imageDecal)
+}
+
+// Functions for loading the images in the right order on the right place
+function putDecalOnMesh(mesh, decalMaterial) {
+
+    var { position, box, size, decalGeometry, decal } = decalObject(-30, 58.85, 90, -1.6);
+    var { position, box, size, decalGeometry, decal } = decalObject(30, 58.85, 90, 1.6);
+    var { position, box, size, decalGeometry, decal } = decalObject(0, 40, 28, 0);
+
+    
+    function decalObject(xPosition, zPosition, decalDepth, decalAngle) {
+        var position = new THREE.Vector3(xPosition, 17, zPosition);
+        // Get model sizes
+        var box = new THREE.Box3().setFromObject(model);
+        console.log(box.min, box.max, box.getSize());
+        // Scale decal to model size
+        var size = new THREE.Vector3(180, 89, decalDepth);
+
+        // Generate decal and add to model (scene)
+        var decalGeometry = new DecalGeometry(mesh, position, new THREE.Euler(0, decalAngle, 0), size);
+        var decal = new THREE.Mesh(decalGeometry, decalMaterial);
+        scene.add(decal);
+        return { position, box, size, decalGeometry, decal };
+    }
+}
