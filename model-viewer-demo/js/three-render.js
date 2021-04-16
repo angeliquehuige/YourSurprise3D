@@ -142,22 +142,6 @@ function generateDecalMaterialFromImage(image) {
     return decalMaterial
 }
 
-// function for putting a decal material on a mesh
-function putDecalOnMesh(mesh, decalMaterial) {
-    var position = new THREE.Vector3( 0, 17, 0 );
-
-    // Get model sizes
-    var box = new THREE.Box3().setFromObject(model);
-    console.log(box.min, box.max, box.getSize());
-    // Scale decal to model size
-    var size = new THREE.Vector3( box.getSize().x, box.getSize().y - 3, box.getSize().z);
-
-    // Generate decal and add to model (scene)
-    var decalGeometry = new DecalGeometry(mesh, position, new THREE.Euler(0,0,0), size);
-    var decal = new THREE.Mesh(decalGeometry, decalMaterial);
-    scene.add(decal);
-}
-
 function eulerRotateConvert(degrees) {
     let multiply = degrees / 90
     return (Math.PI / 2) * multiply 
