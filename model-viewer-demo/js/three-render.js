@@ -169,7 +169,7 @@ function eulerRotateConvert(degrees) {
 function animate() {
     requestAnimationFrame( animate );
     //model.rotation.z += 0.001
-    scene.rotation.y += 0.001
+    //scene.rotation.y += 0.001
     cameraLight.position.copy(camera.position);
 	renderer.render( scene, camera );
 }
